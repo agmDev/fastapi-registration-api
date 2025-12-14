@@ -4,7 +4,7 @@ from app.api.dependencies.services import get_users_service
 from app.services.users_service import UsersService
 from app.api.models.user import (
     UserCreateRequest,
-    UserCreateResponse,  
+    UserCreateResponse,
 )
 
 

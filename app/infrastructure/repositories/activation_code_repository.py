@@ -32,7 +32,7 @@ class ActivationCodeRepository:
         async with self._conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(
                 """
-                SELECT user_id, code, expires_at, used
+                SELECT user_id, hashed_code, expires_at, used
                 FROM activation_codes
                 WHERE user_id = %s
                 FOR UPDATE

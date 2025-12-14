@@ -1,5 +1,4 @@
 import logging
-
 from app.infrastructure.email.client import EmailMessage
 
 

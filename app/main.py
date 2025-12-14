@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from app.settings import settings
+from app.logging import setup_logging
 from app.api.router.healthcheck import router as healthcheck_router
 from app.api.exception_handlers import register_exception_handlers
 from app.api.router.users import router as user_router
@@ -11,6 +12,7 @@ from app.infrastructure.init_db import init_database
 from app.infrastructure.database import db
 
 
+setup_logging()
 logger = logging.getLogger(__name__)
 
 

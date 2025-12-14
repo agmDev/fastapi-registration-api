@@ -53,6 +53,14 @@ class UsersService:
                 expires_at=expires_at
             )
 
+            await self.email_client.send(
+                EmailMessage(
+                    to=email,
+                    sender=settings.email_from,
+                    subject="Activate your account",
+                    body=f"Your activation code is: {code} (valid for 1 minute)",
+                )
+            )
             return user_id
 
     async def activate(self, user_id: int, code: str) -> None:
@@ -82,15 +90,6 @@ class UsersService:
 
             await users_repo.activate(user_id)
             await codes_repo.mark_used(user_id)
-
-            await self.email_client.send(
-                EmailMessage(
-                    to=user.email,
-                    sender=settings.email_from,
-                    subject="Activate your account",
-                    body=f"Your activation code is: {code} (valid for 1 minute)",
-                )
-            )
 
     async def verify_credentials(self, email: str, password: str):
         async with self.db.get_connection() as conn:
