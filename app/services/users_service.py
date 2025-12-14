@@ -6,6 +6,7 @@ from app.settings import settings
 from app.domain.security import hash_password, verify_password
 from app.domain.models.user import User
 from app.domain.models.activation_code import ActivationCode
+from app.infrastructure.email.client import EmailMessage
 from app.infrastructure.database import Database
 from app.infrastructure.repositories.users_repository import UsersRepository
 from app.infrastructure.repositories.activation_code_repository import (
@@ -21,8 +22,9 @@ from app.domain.exceptions import (
 
 
 class UsersService:
-    def __init__(self, db: Database):
+    def __init__(self, db: Database, email_client):
         self.db = db
+        self.email_client = email_client
 
     def _generate_activation_code(self) -> str:
         return f"{secrets.randbelow(10_000):04d}"
@@ -80,6 +82,15 @@ class UsersService:
 
             await users_repo.activate(user_id)
             await codes_repo.mark_used(user_id)
+
+            await self.email_client.send(
+                EmailMessage(
+                    to=user.email,
+                    sender=settings.email_from,
+                    subject="Activate your account",
+                    body=f"Your activation code is: {code} (valid for 1 minute)",
+                )
+            )
 
     async def verify_credentials(self, email: str, password: str):
         async with self.db.get_connection() as conn:

@@ -21,12 +21,13 @@ class AppSettings(BaseSettings):
     db_pool_max_size: int = Field(default=20)
 
     # activation code tll
-    activation_code_ttl = timedelta(minutes=1)
+    activation_code_ttl: timedelta = timedelta(minutes=1)
 
     # fakse smtp provider
     email_provider_base_url: AnyUrl = "http://mailhog:8025"
     email_provider_timeout_seconds: float = 2.0
     email_from: str = "no-reply@registration.local"
+    email_provider_mode: str = "console"
 
     model_config = SettingsConfigDict(
         env_prefix="",
