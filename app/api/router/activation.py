@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
+from app.services.users_service import UsersService
+from app.api.dependancy import get_current_user_id
+from app.dependancy import get_users_service
 from app.api.models.activation import (
     ActivateAccountRequest,
     ActivateAccountResponse,
@@ -18,9 +21,13 @@ router = APIRouter(
 )
 async def activate_account(
     payload: ActivateAccountRequest,
+    user_id: int = Depends(get_current_user_id),
+    service: UsersService = Depends(get_users_service)
 ) -> ActivateAccountResponse:
     """
     Activate a user account using a 4-digit code.
     Basic Auth is used to identify the user.
     """
+    await service.activate(user_id, payload.code)
+
     return ActivateAccountResponse()
