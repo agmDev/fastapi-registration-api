@@ -19,10 +19,10 @@ class ActivationCodeRepository:
                 """
                 INSERT INTO activation_codes
                 (user_id, hashed_code, expires_at, used)
-                VALUES (%s, %s, %s, FALSE)
-                ON DUPLICATE KEY UPDATE
-                    hashed_code = VALUES(hashed_code),
-                    expires_at = VALUES(expires_at),
+                VALUES (%s, %s, %s, FALSE) AS new
+                ON DUPLICATE KEY UPDATE 
+                    hashed_code = new.hashed_code,
+                    expires_at = new.expires_at,
                     used = FALSE
                 """,
                 (user_id, hashed_code, expires_at),
