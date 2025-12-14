@@ -11,11 +11,11 @@ async def get_current_user_id(
     credentials: HTTPBasicCredentials = Depends(security),
     service: UsersService = Depends(get_users_service),
 ) -> int:
-    user = await service.verify_credentials(
+    user_id = await service.verify_credentials(
         credentials.username,
         credentials.password,
     )
-    if not user:
+    if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    return int(user.id)
+    return user_id

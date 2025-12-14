@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from datetime import timedelta
 from pydantic import Field
 
 
@@ -18,6 +19,9 @@ class AppSettings(BaseSettings):
     # Pool settings
     db_pool_min_size: int = Field(default=5)
     db_pool_max_size: int = Field(default=20)
+
+    # activation code tll
+    activation_code_ttl = timedelta(minutes=1)
 
     model_config = SettingsConfigDict(
         env_prefix="",
