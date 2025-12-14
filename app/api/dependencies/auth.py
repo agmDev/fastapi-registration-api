@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from app.dependancy import get_users_service
+from app.api.dependencies.services import get_users_service
 from app.services.users_service import UsersService
 
 

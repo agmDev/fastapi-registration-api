@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from app.services.users_service import UsersService
-from app.api.dependancy import get_current_user_id
-from app.dependancy import get_users_service
+from app.api.dependencies.auth import get_current_user_id
+from app.api.dependencies.services import get_users_service
 from app.api.models.activation import (
     ActivateAccountRequest,
     ActivateAccountResponse,
