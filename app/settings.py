@@ -10,11 +10,11 @@ class AppSettings(BaseSettings):
     version: str = "0.1.0"
 
     # MySQL Database
-    mysql_host: str
-    mysql_port: int
-    mysql_user: str
-    mysql_password: str
-    mysql_database: str
+    mysql_host: str = Field(...)
+    mysql_port: int = Field(...)
+    mysql_user: str = Field(...)
+    mysql_password: str = Field(...)
+    mysql_database: str = Field(...)
 
     # Pool settings
     db_pool_min_size: int = Field(default=5)
@@ -24,7 +24,7 @@ class AppSettings(BaseSettings):
     activation_code_ttl: timedelta = timedelta(minutes=1)
 
     # fakse smtp provider
-    email_provider_base_url: AnyUrl = "http://mailhog:8025"
+    email_provider_base_url: AnyUrl = Field(default="http://mailhog:8025")
     email_provider_timeout_seconds: float = 2.0
     email_from: str = "no-reply@registration.local"
     email_provider_mode: str = "console"

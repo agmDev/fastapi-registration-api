@@ -21,19 +21,19 @@ async def init_database():
 
         async with conn.cursor() as cursor:
             await cursor.execute(f"USE {settings.mysql_database}")
-            
+
             schema_path = Path(__file__).parent / "schema.sql"
             schema_sql = schema_path.read_text()
-            
+
             for statement in schema_sql.split(';'):
                 if statement.strip():
                     await cursor.execute(statement)
-            
+
             await conn.commit()
             logger.info("Database schema initialized")
-        
+
         conn.close()
-        
+
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise

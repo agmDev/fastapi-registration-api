@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class ActivateAccountRequest(BaseModel):
     code: str = Field(
         pattern=r"^\d{4}$",

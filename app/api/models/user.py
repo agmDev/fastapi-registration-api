@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 
+
 class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str = Field(

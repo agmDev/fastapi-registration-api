@@ -20,7 +20,7 @@ class ActivationCodeRepository:
                 INSERT INTO activation_codes
                 (user_id, hashed_code, expires_at, used)
                 VALUES (%s, %s, %s, FALSE) AS new
-                ON DUPLICATE KEY UPDATE 
+                ON DUPLICATE KEY UPDATE
                     hashed_code = new.hashed_code,
                     expires_at = new.expires_at,
                     used = FALSE

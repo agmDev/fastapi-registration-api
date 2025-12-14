@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from hashlib import sha256
+from typing import Optional
 import secrets
 
 from app.settings import settings
@@ -68,10 +69,12 @@ class UsersService:
 
         async with self.db.transaction() as conn:
             users_repo: UsersRepository = UsersRepository(conn)
-            codes_repo: ActivationCodeRepository = ActivationCodeRepository(conn)
+            codes_repo: ActivationCodeRepository = ActivationCodeRepository(
+                conn
+            )
 
-            user: User = await users_repo.get_by_id(user_id)
-            activation_code: ActivationCode = await codes_repo.get_for_update(user_id)
+            user: Optional[User] = await users_repo.get_by_id(user_id)
+            activation_code: Optional[ActivationCode] = await codes_repo.get_for_update(user_id)
 
             if not user:
                 raise InvalidCredentials()

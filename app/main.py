@@ -3,7 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from app.settings import settings
-from app.logging import setup_logging
+from app.infrastructure.logging import setup_logging
 from app.api.router.healthcheck import router as healthcheck_router
 from app.api.exception_handlers import register_exception_handlers
 from app.api.router.users import router as user_router

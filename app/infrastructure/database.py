@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 class Database:
     """Handles MySQL connexion pool"""
-    
+
     def __init__(self):
         self.pool: aiomysql.Pool | None = None
-    
+
     async def connect(self):
         """Initialize connexion pool """
         try:
@@ -32,23 +32,23 @@ class Database:
         except Exception as e:
             logger.error(f"Failed to create database pool: {e}")
             raise
-    
+
     async def disconnect(self):
         """Close the connexion pool"""
         if self.pool:
             self.pool.close()
             await self.pool.wait_closed()
             logger.info("Database pool closed")
-    
+
     @asynccontextmanager
     async def get_connection(self) -> AsyncIterator[aiomysql.Connection]:
         """Context manager to obtain a connexion from pool"""
         if not self.pool:
             raise RuntimeError("Database pool not initialized")
-        
+
         async with self.pool.acquire() as conn:
             yield conn
-    
+
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[aiomysql.Connection]:
         """Context manager for transaction"""

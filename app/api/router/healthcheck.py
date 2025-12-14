@@ -7,6 +7,7 @@ router = APIRouter(
     tags=["healthcech"]
 )
 
+
 @router.get(
     "",
     response_model=HealthResponse
