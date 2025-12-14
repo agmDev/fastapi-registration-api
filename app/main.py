@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.settings import settings
 from app.api.router.healthcheck import router as healthcheck_router
+from app.api.exception_handlers import register_exception_handlers
 from app.api.router.users import router as user_router
 from app.api.router.activation import router as activation_router
 from app.infrastructure.init_db import init_database
@@ -17,16 +18,11 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("starting application")
     try:
-        await init_database()
-
         await db.connect()
-
-        routers = healthcheck_router, user_router, activation_router
-        for router in routers:
-            app.include_router(router)
+        await init_database()
         logger.info("application started succesfully")
-    except:
-        logger.error(f"Failed to start application:", exc_info=True)
+    except Exception:
+        logger.error("Failed to start application:", exc_info=True)
         raise
 
     yield
@@ -42,3 +38,11 @@ app = FastAPI(
     version=settings.version,
     lifespan=lifespan
 )
+
+routers = healthcheck_router, user_router, activation_router
+for router in routers:
+    app.include_router(router)
+
+register_exception_handlers(app)
+
+

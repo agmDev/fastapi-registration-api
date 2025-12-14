@@ -1,5 +1,7 @@
 import aiomysql
-from datetime import datetime
+from datetime import datetime, timezone
+
+from app.domain.models.activation_code import ActivationCode
 
 class ActivationCodeRepository:
     def __init__(self, conn: aiomysql.Connection):
@@ -35,7 +37,14 @@ class ActivationCodeRepository:
                 """,
                 (user_id,),
             )
-            return await cursor.fetchone()
+            row = await cursor.fetchone()
+
+            return ActivationCode(
+                    user_id=row["user_id"],
+                    code=row["code"],
+                    expires_at=row["expires_at"].replace(tzinfo=timezone.utc),
+                    used=row["used"]
+                )
 
     async def mark_used(self, user_id: int) -> None:
         async with self._conn.cursor() as cursor:
