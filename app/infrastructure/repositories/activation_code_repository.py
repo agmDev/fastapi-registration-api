@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from app.domain.models.activation_code import ActivationCode
 
+
 class ActivationCodeRepository:
     def __init__(self, conn: aiomysql.Connection):
         self._conn = conn
@@ -10,23 +11,24 @@ class ActivationCodeRepository:
     async def create_or_replace(
         self,
         user_id: int,
-        code: str,
+        hashed_code: str,
         expires_at: datetime,
     ) -> None:
         async with self._conn.cursor() as cursor:
             await cursor.execute(
                 """
-                INSERT INTO activation_codes (user_id, code, expires_at, used)
+                INSERT INTO activation_codes
+                (user_id, hashed_code, expires_at, used)
                 VALUES (%s, %s, %s, FALSE)
                 ON DUPLICATE KEY UPDATE
-                    code = VALUES(code),
+                    hashed_code = VALUES(hashed_code),
                     expires_at = VALUES(expires_at),
                     used = FALSE
                 """,
-                (user_id, code, expires_at),
+                (user_id, hashed_code, expires_at),
             )
 
-    async def get_for_update(self, user_id: int) -> dict | None:
+    async def get_for_update(self, user_id: int) -> ActivationCode | None:
         async with self._conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(
                 """
@@ -41,7 +43,7 @@ class ActivationCodeRepository:
 
             return ActivationCode(
                     user_id=row["user_id"],
-                    code=row["code"],
+                    hashed_code=row["hashed_code"],
                     expires_at=row["expires_at"].replace(tzinfo=timezone.utc),
                     used=row["used"]
                 )

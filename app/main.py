@@ -31,7 +31,6 @@ async def lifespan(app: FastAPI):
     logger.info("Application shut down successfully")
 
 
-
 app = FastAPI(
     title=settings.app_name,
     description=settings.description,
@@ -44,5 +43,3 @@ for router in routers:
     app.include_router(router)
 
 register_exception_handlers(app)
-
-

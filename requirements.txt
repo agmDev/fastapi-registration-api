@@ -5,3 +5,4 @@ email-validator==2.3.0
 aiomysql==0.3.2
 pydantic-settings==2.12.0
 cryptography==46.0.3
+bcrypt==5.0.0

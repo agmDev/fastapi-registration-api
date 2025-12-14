@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS activation_codes (
     user_id BIGINT NOT NULL,
-    code CHAR(4) NOT NULL,
+    hashed_code CHAR(64) NOT NULL,
     expires_at DATETIME NOT NULL,
     used BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (user_id),

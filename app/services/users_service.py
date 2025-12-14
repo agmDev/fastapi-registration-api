@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
 import secrets
 
+from app.domain.security import hash_password, verify_password
 from app.domain.models.user import User
 from app.domain.models.activation_code import ActivationCode
 from app.infrastructure.database import Database
 from app.infrastructure.repositories.users_repository import UsersRepository
-from app.infrastructure.repositories.activation_code_repository import ActivationCodeRepository
+from app.infrastructure.repositories.activation_code_repository import (
+    ActivationCodeRepository
+)
 from app.domain.exceptions import (
     UserAlreadyExists,
     InvalidCredentials,
@@ -17,6 +21,7 @@ from app.domain.exceptions import (
 
 ACTIVATION_CODE_TTL = timedelta(minutes=1)
 
+
 class UsersService:
     def __init__(self, db: Database):
         self.db = db
@@ -24,29 +29,30 @@ class UsersService:
     def _generate_activation_code(self) -> str:
         return f"{secrets.randbelow(10_000):04d}"
 
-    async def register(self, email: str, password: str) -> User:
+    async def register(self, email: str, password: str) -> int:
         now = datetime.now(tz=timezone.utc)
         async with self.db.transaction() as conn:
             users_repo: UsersRepository = UsersRepository(conn)
             codes_repo: ActivationCodeRepository = ActivationCodeRepository(conn)
-            
+
             user = await users_repo.get_by_email(email)
             if user:
                 raise UserAlreadyExists()
 
-            user_id = await users_repo.create(email, password) 
+            user_id = await users_repo.create(email, hash_password(password))
             code = self._generate_activation_code()
+            hashed_code = sha256(code.encode()).hexdigest()
             expires_at = now + ACTIVATION_CODE_TTL
 
             await codes_repo.create_or_replace(
                 user_id=user_id,
-                code=code,
+                hashed_code=hashed_code,
                 expires_at=expires_at
             )
 
-            return user
+            return user_id
 
-    async def activate(self, user_id: int, code: int) -> None:
+    async def activate(self, user_id: int, code: str) -> None:
         now = datetime.now(tz=timezone.utc)
 
         async with self.db.transaction() as conn:
@@ -58,26 +64,27 @@ class UsersService:
 
             if not user:
                 raise InvalidCredentials()
-
+            if not activation_code:
+                raise InvalidActivationCode()
             if user.is_active:
                 raise UserAlreadyActive()
 
-            if activation_code.code != code:
+            if activation_code.hashed_code != sha256(code.encode()).hexdigest():
                 raise InvalidActivationCode()
-            
+
             if activation_code.expires_at < now:
                 raise ActivationCodeExpired()
 
             await users_repo.activate(user_id)
             await codes_repo.mark_used(user_id)
-    
+
     async def verify_credentials(self, email: str, password: str):
         async with self.db.transaction() as conn:
             users_repo: UsersRepository = UsersRepository(conn)
             user = await users_repo.get_by_email(email)
             if not user:
-                raise InvalidCredentials
+                raise InvalidCredentials()
 
-            if password != user.hashed_password:
-                raise InvalidCredentials
+            if not verify_password(password, user.hashed_password):
+                raise InvalidCredentials()
             return user

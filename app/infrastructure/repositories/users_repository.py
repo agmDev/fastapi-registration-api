@@ -1,5 +1,4 @@
 import aiomysql
-import logging
 
 from app.domain.models.user import User
 
@@ -8,9 +7,9 @@ class UsersRepository:
     def __init__(self, conn: aiomysql.Connection):
         self.conn = conn
 
-    async def create(self, email: str, hashed_password: str) -> None:
+    async def create(self, email: str, hashed_password: str) -> int:
         async with self.conn.cursor() as cursor:
-            row = await cursor.execute(
+            await cursor.execute(
                 """
                 INSERT INTO users (email, hashed_password, is_active)
                 VALUES (%s, %s, %s)
@@ -19,11 +18,13 @@ class UsersRepository:
             )
             return cursor.lastrowid
 
-
     async def get_by_id(self, id: int) -> User | None:
         async with self.conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(
-                "SELECT id, email, hashed_password, is_active, created_at FROM users WHERE id = %s",
+                """
+                SELECT id, email, hashed_password, is_active, created_at
+                FROM users WHERE id = %s
+                """,
                 (id,),
             )
             row = await cursor.fetchone()
@@ -42,7 +43,10 @@ class UsersRepository:
     async def get_by_email(self, email: str) -> User | None:
         async with self.conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(
-                "SELECT id, email, hashed_password, is_active, created_at FROM users WHERE email = %s",
+                """
+                SELECT id, email, hashed_password, is_active, created_at
+                FROM users WHERE email = %s
+                """,
                 (email,),
             )
             row = await cursor.fetchone()
@@ -63,4 +67,4 @@ class UsersRepository:
             await cursor.execute(
                 "UPDATE users SET is_active=TRUE WHERE id=%s",
                 (user_id,)
-        )
+            )
