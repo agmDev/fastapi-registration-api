@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from datetime import timedelta
-from pydantic import Field
+from pydantic import Field, AnyUrl
 
 
 class AppSettings(BaseSettings):
@@ -22,6 +22,11 @@ class AppSettings(BaseSettings):
 
     # activation code tll
     activation_code_ttl = timedelta(minutes=1)
+
+    # fakse smtp provider
+    email_provider_base_url: AnyUrl = "http://mailhog:8025"
+    email_provider_timeout_seconds: float = 2.0
+    email_from: str = "no-reply@registration.local"
 
     model_config = SettingsConfigDict(
         env_prefix="",
