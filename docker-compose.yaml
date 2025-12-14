@@ -6,22 +6,34 @@ services:
     container_name: registration_api
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/appdb
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+    environment:
+      MYSQL_HOST: mysql_db
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: user
+      MYSQL_PORT: 3306
+      MYSQL_PASSWORD: password
 
   db:
-    image: postgres:14
-    container_name: postgres_db
+    image: mysql:8.0
+    container_name: mysql_db
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: user
-      POSTGRES_DB: appdb
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL","mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  postgres_data:
+  mysql_data:
