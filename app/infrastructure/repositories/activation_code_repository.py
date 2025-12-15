@@ -41,6 +41,9 @@ class ActivationCodeRepository:
             )
             row = await cursor.fetchone()
 
+            if row is None:
+                return None
+
             return ActivationCode(
                     user_id=row["user_id"],
                     hashed_code=row["hashed_code"],
