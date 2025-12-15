@@ -70,8 +70,10 @@ Command:
 ```bash
 docker compose up
 ```
+Once the application is running, the interactive API documentation is available at:
 
-This will start the API and its dependencies locally.
+- Swagger UI: http://localhost:8000/docs
+- OpenAPI schema: http://localhost:8000/openapi.json
 
 ---
 ## How to Run Tests
@@ -83,13 +85,8 @@ Prerequisites:
 Commands:
 
 ```bash
-docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+docker compose -f docker-compose.test.yaml up --build --abort-on-container-exit
 ```
-
-Once the application is running, the interactive API documentation is available at:
-
-- Swagger UI: http://localhost:8000/docs
-- OpenAPI schema: http://localhost:8000/openapi.json
 
 
 ## Design Decisions
