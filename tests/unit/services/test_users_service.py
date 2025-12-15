@@ -14,9 +14,52 @@ from app.domain.models.user import User
 from app.domain.models.activation_code import ActivationCode
 
 
+class FakeSettings:
+    activation_code_ttl = timedelta(minutes=1)
+    email_from = "no-reply@test.local"
+
+
+class FakeCursor:
+    async def execute(self, *args, **kwargs):
+        return None
+
+    async def fetchone(self):
+        return None
+
+    async def fetchall(self):
+        return []
+
+    @property
+    def lastrowid(self):
+        return 1
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+
+class FakeConnection:
+    def cursor(self, *args, **kwargs):
+        return FakeCursor()
+
+    async def begin(self):
+        return None
+
+    async def commit(self):
+        return None
+
+    async def rollback(self):
+        return None
+
+
 class FakeTransaction:
     async def __aenter__(self):
-        return "conn"
+        return FakeConnection()
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
 
     async def __aexit__(self, exc_type, exc, tb):
         return False
@@ -34,8 +77,13 @@ class FakeDatabase:
 async def test_register_ok(monkeypatch):
     db = FakeDatabase()
     email_client = AsyncMock()
+    settings = FakeSettings()
 
-    service = UsersService(db=db, email_client=email_client)
+    service = UsersService(
+        db=db,
+        email_client=email_client,
+        settings=settings,
+    )
 
     users_repo = AsyncMock()
     codes_repo = AsyncMock()
@@ -68,7 +116,9 @@ async def test_register_ok(monkeypatch):
 async def test_register_user_already_exists(monkeypatch):
     db = FakeDatabase()
     email_client = AsyncMock()
-    service = UsersService(db=db, email_client=email_client)
+    settings = FakeSettings()
+
+    service = UsersService(db, email_client, settings)
 
     users_repo = AsyncMock()
     monkeypatch.setattr(
@@ -90,7 +140,8 @@ async def test_register_user_already_exists(monkeypatch):
 @pytest.mark.asyncio
 async def test_activate_ok(monkeypatch):
     db = FakeDatabase()
-    service = UsersService(db=db, email_client=AsyncMock())
+    settings = FakeSettings()
+    service = UsersService(db, AsyncMock(), settings)
 
     users_repo = AsyncMock()
     codes_repo = AsyncMock()
@@ -129,18 +180,13 @@ async def test_activate_ok(monkeypatch):
 @pytest.mark.asyncio
 async def test_activate_user_already_active(monkeypatch):
     db = FakeDatabase()
-    service = UsersService(db=db, email_client=AsyncMock())
+    settings = FakeSettings()
+    service = UsersService(db, AsyncMock(), settings)
 
     users_repo = AsyncMock()
-    codes_repo = AsyncMock()
-
     monkeypatch.setattr(
         "app.services.users_service.UsersRepository",
         lambda conn: users_repo
-    )
-    monkeypatch.setattr(
-        "app.services.users_service.ActivationCodeRepository",
-        lambda conn: codes_repo
     )
 
     users_repo.get_by_id.return_value = User(
@@ -158,7 +204,8 @@ async def test_activate_user_already_active(monkeypatch):
 @pytest.mark.asyncio
 async def test_activate_invalid_code(monkeypatch):
     db = FakeDatabase()
-    service = UsersService(db=db, email_client=AsyncMock())
+    settings = FakeSettings()
+    service = UsersService(db, AsyncMock(), settings)
 
     users_repo = AsyncMock()
     codes_repo = AsyncMock()
@@ -189,7 +236,8 @@ async def test_activate_invalid_code(monkeypatch):
 @pytest.mark.asyncio
 async def test_activate_expired_code(monkeypatch):
     db = FakeDatabase()
-    service = UsersService(db=db, email_client=AsyncMock())
+    settings = FakeSettings()
+    service = UsersService(db, AsyncMock(), settings)
 
     users_repo = AsyncMock()
     codes_repo = AsyncMock()
@@ -225,7 +273,8 @@ async def test_activate_expired_code(monkeypatch):
 @pytest.mark.asyncio
 async def test_verify_credentials_ok(monkeypatch):
     db = FakeDatabase()
-    service = UsersService(db=db, email_client=AsyncMock())
+    settings = FakeSettings()
+    service = UsersService(db, AsyncMock(), settings)
 
     users_repo = AsyncMock()
     monkeypatch.setattr(
@@ -236,7 +285,7 @@ async def test_verify_credentials_ok(monkeypatch):
     users_repo.get_by_email.return_value = User(
         id=1,
         email="test@example.com",
-        hashed_password=service._hash_activation_code("password"),
+        hashed_password="hashed",
         is_active=True,
         created_at=datetime.now(tz=timezone.utc),
     )

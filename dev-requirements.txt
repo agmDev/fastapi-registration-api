@@ -3,3 +3,5 @@ mypy
 pytest==9.0.2
 pytest-asyncio==1.3.0
 pydantic[mypy]
+testcontainers==4.13.3
+PyMySQL==1.1.2

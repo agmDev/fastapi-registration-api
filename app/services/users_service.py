@@ -3,7 +3,7 @@ from hashlib import sha256
 from typing import Optional
 import secrets
 
-from app.settings import settings
+from app.settings import AppSettings
 from app.domain.security import hash_password, verify_password
 from app.domain.models.user import User
 from app.domain.models.activation_code import ActivationCode
@@ -23,7 +23,8 @@ from app.domain.exceptions import (
 
 
 class UsersService:
-    def __init__(self, db: Database, email_client):
+    def __init__(self, db: Database, email_client, settings: AppSettings):
+        self.settings: AppSettings = settings
         self.db = db
         self.email_client = email_client
 
@@ -46,7 +47,7 @@ class UsersService:
             user_id = await users_repo.create(email, hash_password(password))
             code = self._generate_activation_code()
             hashed_code = self._hash_activation_code(code)
-            expires_at = now + settings.activation_code_ttl
+            expires_at = now + self.settings.activation_code_ttl
 
             await codes_repo.create_or_replace(
                 user_id=user_id,
@@ -57,7 +58,7 @@ class UsersService:
             await self.email_client.send(
                 EmailMessage(
                     to=email,
-                    sender=settings.email_from,
+                    sender=self.settings.email_from,
                     subject="Activate your account",
                     body=f"Your activation code is: {code} (valid for 1 minute)",
                 )
