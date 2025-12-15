@@ -12,9 +12,12 @@ from app.infrastructure.migrate_db import migrate_database
 from app.infrastructure.database import Database
 
 
-def create_app(settings: AppSettings) -> FastAPI:
+def create_app(settings: AppSettings | None = None) -> FastAPI:
     setup_logging()
     logger = logging.getLogger(__name__)
+
+    if settings is None:
+        settings = AppSettings()
 
     database = Database(settings)
 
