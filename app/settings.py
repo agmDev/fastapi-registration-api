@@ -8,6 +8,7 @@ class AppSettings(BaseSettings):
     app_name: str = "user-registration-api"
     description: str = "simple user registration api"
     version: str = "0.1.0"
+    environment: str = Field(default="production")
 
     # MySQL Database
     mysql_host: str = Field(...)

@@ -7,7 +7,7 @@ from app.settings import settings
 logger = logging.getLogger(__name__)
 
 
-async def init_database():
+async def migrate_database():
     """Initialize database with the schema"""
     logger.info("test")
     try:

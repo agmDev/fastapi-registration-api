@@ -2,9 +2,12 @@ import aiomysql
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 import logging
+from typing import Optional
 
 from app.settings import settings
 
+
+db: Optional["Database"] = None
 logger = logging.getLogger(__name__)
 
 
@@ -16,6 +19,9 @@ class Database:
 
     async def connect(self):
         """Initialize connexion pool """
+        if settings.environment == "test":
+            logger.info("Database connection disabled for tests")
+            return
         try:
             self.pool = await aiomysql.create_pool(
                 host=settings.mysql_host,
@@ -62,4 +68,8 @@ class Database:
                 raise
 
 
-db = Database()
+def get_db() -> Database:
+    global db
+    if db is None:
+        db = Database()
+    return db
