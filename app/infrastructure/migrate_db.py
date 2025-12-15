@@ -2,13 +2,14 @@ import aiomysql
 import logging
 from pathlib import Path
 
-from app.settings import settings
+from app.settings import get_settings, AppSettings
 
 logger = logging.getLogger(__name__)
 
 
 async def migrate_database():
     """Initialize database with the schema"""
+    settings: AppSettings = get_settings()
     logger.info("test")
     try:
         conn = await aiomysql.connect(

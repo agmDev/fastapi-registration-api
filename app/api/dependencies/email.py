@@ -1,9 +1,10 @@
-from app.settings import settings
+from app.settings import get_settings
 from app.infrastructure.email.client import EmailClient
 from app.infrastructure.email.console_client import ConsoleEmailClient
 
 
 def get_email_client():
+    settings = get_settings()
     if settings.email_provider_mode == "http":
         return EmailClient(
             base_url=str(settings.email_provider_base_url),

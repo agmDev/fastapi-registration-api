@@ -43,4 +43,5 @@ class AppSettings(BaseSettings):
         )
 
 
-settings = AppSettings()
+def get_settings() -> AppSettings:
+    return AppSettings()
