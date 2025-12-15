@@ -23,6 +23,9 @@ Features:
 6. On shutdown:
    - Database pool is gracefully closed
 
+## Architecture
+
+![Architecture diagram](docs/architecture.png)
 
 ## Configuration
 
