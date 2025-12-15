@@ -86,6 +86,12 @@ Commands:
 docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 ```
 
+Once the application is running, the interactive API documentation is available at:
+
+- Swagger UI: http://localhost:8000/docs
+- OpenAPI schema: http://localhost:8000/openapi.json
+
+
 ## Design Decisions
 
 Why an application factory?
