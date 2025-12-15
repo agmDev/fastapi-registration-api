@@ -27,6 +27,25 @@ Features:
 
 ![Architecture diagram](docs/architecture.png)
 
+## Email (SMTP) Handling
+
+For this project, the email provider is treated as a **third-party service**.
+
+### Current implementation
+
+Emails are **mocked** and **printed to the application logs** instead of being sent.
+
+This choice was made to:
+- Keep the system fully self-contained
+- Avoid external dependencies
+- Make activation codes visible during development and tests
+
+Example log output:
+
+```bash
+| 2025-12-15 17:29:29,181 [INFO] app.infrastructure.email.console_client: [EMAIL MOCK] to=auser@example.com subject=Activate your account body=Your activation code is: 0571 (valid for 1 minute)
+```
+
 ## Configuration
 
 Configuration is handled via Pydantic BaseSettings and environment variables.
@@ -42,8 +61,6 @@ Required environment variables:
 
 ## Running the Application
 
-### Using Docker Compose
-
 Prerequisites:
 - Docker
 - Docker Compose
@@ -57,22 +74,6 @@ docker compose up
 This will start the API and its dependencies locally.
 
 ---
-
-### Running Locally
-
-Prerequisites:
-- Python 3.12
-
-Commands:
-
-```bash
-pip install -r requirements.txt
-./launch_dev.sh
-```
-
-The `launch_dev.sh` script starts the FastAPI application using the application factory.
-
----
 ## How to Run Tests
 
 Prerequisites:
@@ -82,8 +83,7 @@ Prerequisites:
 Commands:
 
 ```bash
-pip install -r dev-requirements.txt
-pytest
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 ```
 
 ## Design Decisions

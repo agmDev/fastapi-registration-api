@@ -17,6 +17,7 @@ from app.domain.models.activation_code import ActivationCode
 class FakeSettings:
     activation_code_ttl = timedelta(minutes=1)
     email_from = "no-reply@test.local"
+    environment = "test"
 
 
 class FakeCursor:

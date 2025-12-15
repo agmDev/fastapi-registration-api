@@ -29,6 +29,8 @@ class UsersService:
         self.email_client = email_client
 
     def _generate_activation_code(self) -> str:
+        if self.settings.environment == "integration":
+            return "1234"
         return f"{secrets.randbelow(10_000):04d}"
 
     def _hash_activation_code(self, code: str) -> str:

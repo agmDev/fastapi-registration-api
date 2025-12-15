@@ -2,9 +2,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PYTHONPATH=/app
+
+COPY requirements.txt dev-requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r dev-requirements.txt
 
 COPY app ./app
+COPY tests ./tests
 
-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]
+CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
